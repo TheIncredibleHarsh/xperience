@@ -3,6 +3,9 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import DesktopIcon from './shared/components/desktop-icon'
+import { SelectionContext } from './shared/contexts/selectionContext'
+import ContextMenu from './shared/components/context-menu'
+import WelcomeScreen from './shared/components/welcome-screen'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -11,7 +14,9 @@ function App() {
   const [draggable, setDraggable] = useState(undefined)
   const [dragging, setDragging] = useState(false)
   const [currentSelection, setCurrentSelection] = useState(null)
-  const SelectionContext = createContext({});
+  const [showContextMenu, setShowContextMenu] = useState(false)
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(true)
+  const logonSound = new Audio('sounds/startup.wav')
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -29,22 +34,44 @@ function App() {
     if (dragging) {
       const dx = e.clientX
       const dy = e.clientY
-      draggable.style.left = `${dx}px`
-      draggable.style.top = `${dy}px`
+      draggable.style.left = `${dx-draggable.offsetWidth/2}px`
+      draggable.style.top = `${dy-draggable.offsetHeight/2}px`
     }
   }
 
-  return (
-    <SelectionContext.Provider value={currentSelection}>
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    setMouseX(e.clientX)
+    setMouseY(e.clientY)
+    setShowContextMenu(true)
+  }
 
-    <div class="h-screen bg-[url(wallpaper-wide.jpg)] bg-cover">
-        <div class="h-full w-full p-4 gap-y-6 flex flex-col" onMouseMove={handleMouseMove}>
-          <DesktopIcon type="my-computer" label="My Computer" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onClick={setCurrentSelection} />
-          <DesktopIcon type="notepad" label="Notepad" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}/>
-          <DesktopIcon type="internet" label="internet explorer" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}/>
-          <DesktopIcon type="mp" label="media player" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}/>
-          <DesktopIcon type="calculator" label="calculator" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}/>
-        </div>
+  const handleOnClick = (e) => {
+    const bounds = e.target.getBoundingClientRect()
+    if(e.target.parentElement.id === 'desktop') {
+      setCurrentSelection(null)
+    }
+    setShowContextMenu(false)
+  }
+
+  const handleLogon = () => {
+    setShowWelcomeScreen(false)
+    logonSound.play()
+  }
+
+  return (
+    <div id='desktop' class="h-screen bg-[url(wallpaper-wide.jpg)] bg-cover font-tahoma" onContextMenu={handleContextMenu} onClick={handleOnClick}>
+        {showWelcomeScreen && <WelcomeScreen handleLogon={handleLogon} />}
+        <SelectionContext.Provider value={{currentSelection, setCurrentSelection}}>
+          <div class="h-full w-full p-4 gap-y-6 flex flex-col" onMouseMove={handleMouseMove}>
+            <DesktopIcon type="my-computer" label="My Computer"       onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onClick={setCurrentSelection} position={0} />
+            <DesktopIcon type="notepad"     label="Notepad"           onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onClick={setCurrentSelection} position={1}/>
+            <DesktopIcon type="internet"    label="internet explorer" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onClick={setCurrentSelection} position={2}/>
+            <DesktopIcon type="mp"          label="media player"      onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onClick={setCurrentSelection} position={3}/>
+            <DesktopIcon type="calculator"  label="calculator"        onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onClick={setCurrentSelection} position={4}/>
+            {showContextMenu && <ContextMenu mouseX={mouseX} mouseY={mouseY} />}
+          </div>
+        </SelectionContext.Provider>
       <div class="h-[35px] w-full bg-gradient-to-b from-[#539ef3] to-[6px] to-[#245ddb] fixed bottom-0 
                   border border-slate-300 flex flex-row justify-between">
           <div class="bg-gradient-to-l from-[#21641b] to-30% to-[#1cb31d] 
@@ -62,8 +89,6 @@ function App() {
           </div>
       </div>
     </div>
-    </SelectionContext.Provider>
-
   )
 }
 

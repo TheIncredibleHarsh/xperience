@@ -1,6 +1,7 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { SelectionContext } from '../../../shared/contexts/selectionContext';
 
-function DesktopIcon({type, label, onMouseDown, onMouseUp, onClick}) {
+function DesktopIcon({type, label, onMouseDown, onMouseUp, onClick, position}) {
     const [isSelected, setIsSelected] = useState(false);
 
     const onClickHandler = (e) => {
@@ -15,11 +16,12 @@ function DesktopIcon({type, label, onMouseDown, onMouseUp, onClick}) {
         } else {
             setIsSelected(false);
         }
-    }, []);
+    }, [currentSelection]);
 
     return ( 
-        <div class={`h-24 w-16 flex flex-col justify-center absolute
+        <div class={`h-24 w-16 flex flex-col justify-center absolute z-10
                     ${isSelected ? 'bg-[rgba(0,0,255,0.2)] rounded-sm' : 'bg-transparent'}`}
+            style={{top: `${position*110}px`}}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onClick={onClickHandler}
