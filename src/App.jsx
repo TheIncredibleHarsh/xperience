@@ -60,7 +60,7 @@ function App() {
   }
 
   return (
-    <div id='desktop' class="h-screen bg-[url(wallpaper-wide.jpg)] bg-cover font-tahoma" onContextMenu={handleContextMenu} onClick={handleOnClick}>
+    <div id='desktop' class="h-screen bg-[url(/wallpaper-wide.jpg)] bg-cover font-tahoma" onContextMenu={handleContextMenu} onClick={handleOnClick}>
         {showWelcomeScreen && <WelcomeScreen handleLogon={handleLogon} />}
         <SelectionContext.Provider value={{currentSelection, setCurrentSelection}}>
           <div class="h-full w-full p-4 gap-y-6 flex flex-col" onMouseMove={handleMouseMove}>
